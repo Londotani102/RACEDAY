@@ -1,75 +1,81 @@
+/* ============================================================
+   RACEDAY DATABASE - SECTION C SQL DATABASE SCRIPT
+   ============================================================ */
+
 CREATE DATABASE RaceDayDB;
+GO
+
+USE RaceDayDB;
+GO
+
+
+/* ============================================================
+   1. ORGANISER
+   ============================================================ */
 
 CREATE TABLE Organiser
 (
     OrganiserID INT IDENTITY(1,1) PRIMARY KEY,
-
     FirstName NVARCHAR(50) NOT NULL,
-
     Surname NVARCHAR(50) NOT NULL,
-
     Email NVARCHAR(100) NOT NULL UNIQUE,
-
     PasswordHash NVARCHAR(255) NOT NULL,
-
     Phone NVARCHAR(20) NULL
 );
+GO
+
+
+/* ============================================================
+   2. PARTICIPANT
+   ============================================================ */
 
 CREATE TABLE Participant
 (
     ParticipantID INT IDENTITY(1,1) PRIMARY KEY,
-
     FirstName NVARCHAR(50) NOT NULL,
-
     Surname NVARCHAR(50) NOT NULL,
-
     Email NVARCHAR(100) NOT NULL UNIQUE,
-
     PasswordHash NVARCHAR(255) NOT NULL,
-
     Phone NVARCHAR(20) NULL,
-
     ProfilePictureURL NVARCHAR(500) NULL
 );
+GO
+
+
+/* ============================================================
+   3. ROUTE
+   ============================================================ */
 
 CREATE TABLE Route
 (
     RouteID INT IDENTITY(1,1) PRIMARY KEY,
-
     RouteName NVARCHAR(100) NOT NULL,
-
     Description NVARCHAR(500) NULL,
-
     Distance DECIMAL(6,2) NOT NULL,
-
     StartLocation NVARCHAR(150) NOT NULL,
-
     EndLocation NVARCHAR(150) NOT NULL,
-
     RouteMapURL NVARCHAR(500) NULL,
 
     CONSTRAINT CK_Route_Distance
         CHECK (Distance > 0)
 );
+GO
+
+
+/* ============================================================
+   4. EVENT
+   ============================================================ */
 
 CREATE TABLE Event
 (
     EventID INT IDENTITY(1,1) PRIMARY KEY,
-
     OrganiserID INT NOT NULL,
-
     RouteID INT NOT NULL,
-
     EventName NVARCHAR(150) NOT NULL,
-
     Description NVARCHAR(500) NULL,
-
     EventDate DATE NOT NULL,
-
     Location NVARCHAR(150) NOT NULL,
-
     EventType NVARCHAR(50) NOT NULL,
-
     BannerImageURL NVARCHAR(500) NULL,
 
     CONSTRAINT FK_Event_Organiser
@@ -80,19 +86,20 @@ CREATE TABLE Event
         FOREIGN KEY (RouteID)
         REFERENCES Route(RouteID)
 );
+GO
+
+
+/* ============================================================
+   5. CATEGORIES
+   ============================================================ */
 
 CREATE TABLE Categories
 (
     CategoryID INT IDENTITY(1,1) PRIMARY KEY,
-
     EventID INT NOT NULL,
-
     CategoryName NVARCHAR(100) NOT NULL,
-
     MinAge INT NOT NULL,
-
     MaxAge INT NOT NULL,
-
     Distance DECIMAL(6,2) NOT NULL,
 
     CONSTRAINT FK_Categories_Event
@@ -108,16 +115,18 @@ CREATE TABLE Categories
     CONSTRAINT UQ_Categories_Event_Name
         UNIQUE (EventID, CategoryName)
 );
+GO
 
+
+/* ============================================================
+   6. EVENT ENROLMENT
+   ============================================================ */
 
 CREATE TABLE EventEnrolment
 (
     EventEnrolmentID INT IDENTITY(1,1) PRIMARY KEY,
-
     EventID INT NOT NULL,
-
     ParticipantID INT NOT NULL,
-
     CategoryID INT NOT NULL,
 
     EnrolmentDate DATE NOT NULL
@@ -146,15 +155,18 @@ CREATE TABLE EventEnrolment
     CONSTRAINT UQ_EventEnrolment_Participant_Event
         UNIQUE (ParticipantID, EventID)
 );
+GO
+
+
+/* ============================================================
+   7. RESULTS
+   ============================================================ */
 
 CREATE TABLE Results
 (
     ResultID INT IDENTITY(1,1) PRIMARY KEY,
-
     EventEnrolmentID INT NOT NULL,
-
     FinishTime TIME(0) NOT NULL,
-
     FinishPosition INT NOT NULL,
 
     RecordedAt DATETIME2 NOT NULL
@@ -171,6 +183,12 @@ CREATE TABLE Results
     CONSTRAINT CK_Results_Position
         CHECK (FinishPosition > 0)
 );
+GO
+
+
+/* ============================================================
+   8. INSERT ORGANISERS
+   ============================================================ */
 
 INSERT INTO Organiser
 (
@@ -195,6 +213,8 @@ VALUES
     'HASHED_PASSWORD_002',
     '0723456789'
 );
+GO
+
 
 /* ============================================================
    9. INSERT PARTICIPANTS
@@ -226,6 +246,8 @@ VALUES
     '0745678901',
     'https://example.com/images/daniel.jpg'
 );
+GO
+
 
 /* ============================================================
    10. INSERT ROUTES
@@ -251,7 +273,7 @@ VALUES
 ),
 (
     'Hatfield Challenge Route',
-    'Running route around Hatfield.',
+    'Running route around Hatfield and surrounding areas.',
     21.10,
     'Hatfield',
     'University of Pretoria',
@@ -265,11 +287,13 @@ VALUES
     'Church Square',
     'https://example.com/routes/funrun5km'
 );
+GO
 
 
 /* ============================================================
    11. INSERT EVENTS
    ============================================================ */
+
 INSERT INTO Event
 (
     OrganiserID,
@@ -312,8 +336,7 @@ VALUES
     'Fun Run',
     'https://example.com/images/funrun.jpg'
 );
-
-
+GO
 
 
 /* ============================================================
@@ -392,10 +415,12 @@ VALUES
     100,
     5.00
 );
+GO
 
- --============================================================
- --  13. INSERT EVENT ENROLMENTS
- --  ============================================================ 
+
+/* ============================================================
+   13. INSERT EVENT ENROLMENTS
+   ============================================================ */
 
 INSERT INTO EventEnrolment
 (
@@ -434,6 +459,8 @@ VALUES
     '2026-09-03',
     'Confirmed'
 );
+GO
+
 
 /* ============================================================
    14. INSERT SAMPLE RESULTS
@@ -456,6 +483,8 @@ VALUES
     '00:58:42',
     2
 );
+GO
+
 
 /* ============================================================
    15. TEST THE DATABASE
@@ -474,3 +503,4 @@ SELECT * FROM Categories;
 SELECT * FROM EventEnrolment;
 
 SELECT * FROM Results;
+GO
